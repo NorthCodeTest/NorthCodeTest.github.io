@@ -5,38 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Einkaufsliste</title>
   <style>
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { font-family: system-ui, sans-serif; margin: 0; background: #f5f6f8; color: #222; }
-    .wrap { max-width: 520px; margin: 0 auto; padding: 16px; }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 16px; }
     h1 { font-size: 22px; margin: 8px 0 16px; }
     h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .05em; color: #777; margin: 24px 0 8px; }
     input, select, button { font-size: 16px; padding: 12px; border-radius: 10px; border: 1px solid #ccc; }
     input, select { background: #fff; }
     button { background: #2f7d4f; color: #fff; border: none; cursor: pointer; }
     button.sekundaer { background: #e3e5e8; color: #333; }
+    button.gefahr { background: #c0392b; }
     .hidden { display: none; }
     .karte { background: #fff; border-radius: 12px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
     .login input { width: 100%; margin-bottom: 8px; }
     .login button { width: 100%; }
     #fehler { color: #c00; min-height: 1.2em; }
+    .kopf { display: flex; justify-content: space-between; align-items: center; }
+    .kopf button { padding: 8px 12px; font-size: 14px; }
 
+    /* Neues Produkt */
     .neu { display: grid; grid-template-columns: 1fr 80px 90px; gap: 8px; margin-bottom: 8px; }
     .neu input[name="name"] { grid-column: 1 / -1; }
     .neu button { grid-column: 1 / -1; }
 
-    ul { list-style: none; margin: 0; padding: 0; }
-    li { display: flex; align-items: center; gap: 10px; background: #fff; padding: 10px 12px;
-         border-radius: 12px; margin-bottom: 6px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
-    li .haken { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #2f7d4f; flex: none;
-                display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; cursor: pointer; }
-    li.erledigt .haken { background: #2f7d4f; }
-    li.erledigt .text { text-decoration: line-through; color: #999; }
-    li .text { flex: 1; cursor: pointer; }
-    li .menge { color: #555; font-variant-numeric: tabular-nums; }
-    li button { background: transparent; color: #666; padding: 6px 8px; font-size: 18px; }
-    .leer { color: #999; text-align: center; padding: 16px; }
-    .kopf { display: flex; justify-content: space-between; align-items: center; }
-    .kopf button { padding: 8px 12px; font-size: 14px; }
+    /* Kachel-Raster */
+    .raster { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    @media (max-width: 340px) { .raster { grid-template-columns: repeat(2, 1fr); } }
+    .kachel { position: relative; aspect-ratio: 1 / 1; border-radius: 16px; display: flex; flex-direction: column;
+              align-items: center; justify-content: center; text-align: center; padding: 8px;
+              cursor: pointer; user-select: none; box-shadow: 0 1px 3px rgba(0,0,0,.12);
+              transition: transform .08s, opacity .15s; }
+    .kachel:active { transform: scale(.95); }
+    .kachel .name { font-weight: 600; font-size: 16px; line-height: 1.15; word-break: break-word; }
+    .kachel .menge { margin-top: 4px; font-size: 13px; color: rgba(0,0,0,.6); }
+    .kachel .mehr { position: absolute; top: 2px; right: 2px; width: 36px; height: 36px; padding: 0;
+                    background: transparent; color: rgba(0,0,0,.45); font-size: 20px; border-radius: 50%; }
+    .kachel.erledigt { opacity: .5; background: #e3e5e8 !important; }
+    .kachel.erledigt .name { text-decoration: line-through; }
+    .kachel.erledigt::after { content: "✓"; position: absolute; bottom: 6px; right: 10px; color: #2f7d4f; font-size: 20px; font-weight: bold; }
+    .leer { color: #999; text-align: center; padding: 16px; grid-column: 1 / -1; }
+
+    /* Bearbeiten-Dialog */
+    dialog { border: none; border-radius: 16px; padding: 16px; width: min(92vw, 360px); }
+    dialog::backdrop { background: rgba(0,0,0,.4); }
+    dialog h3 { margin: 0 0 12px; }
+    dialog .zeile { display: grid; grid-template-columns: 1fr 100px; gap: 8px; margin-bottom: 8px; }
+    dialog input[name="dname"] { width: 100%; margin-bottom: 8px; }
+    dialog .knoepfe { display: flex; gap: 8px; margin-top: 12px; }
+    dialog .knoepfe button { flex: 1; }
   </style>
 </head>
 <body>
@@ -69,15 +85,37 @@
     </form>
 
     <h2>Noch zu kaufen</h2>
-    <ul id="offen"></ul>
+    <div id="offen" class="raster"></div>
 
     <div class="kopf">
       <h2>Erledigt</h2>
       <button id="aufraeumenBtn" class="sekundaer">Erledigte löschen</button>
     </div>
-    <ul id="erledigt"></ul>
+    <div id="erledigt" class="raster"></div>
   </div>
 </div>
+
+<!-- Dialog: Produkt bearbeiten -->
+<dialog id="dialog">
+  <form method="dialog" id="editForm">
+    <h3>Produkt bearbeiten</h3>
+    <input name="dname" placeholder="Name" required autocomplete="off">
+    <div class="zeile">
+      <input name="dmenge" type="number" min="0" step="any" placeholder="Menge" inputmode="decimal">
+      <select name="deinheit">
+        <option value="">–</option>
+        <option value="g">g</option>
+        <option value="ml">ml</option>
+        <option value="Stück">Stück</option>
+      </select>
+    </div>
+    <div class="knoepfe">
+      <button type="button" id="dLoeschen" class="gefahr">Löschen</button>
+      <button type="button" id="dAbbrechen" class="sekundaer">Abbrechen</button>
+      <button type="submit">Speichern</button>
+    </div>
+  </form>
+</dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -90,6 +128,7 @@
 
   let haushaltId = null;
   let kanal = null;
+  let bearbeiteId = null;
 
   // ---------- Anzeige ----------
   function formatMenge(item) {
@@ -97,36 +136,40 @@
     return `${Number(item.amount)} ${item.unit ?? ""}`.trim();
   }
 
-  function zeile(item) {
-    const li = document.createElement("li");
-    if (item.done) li.classList.add("erledigt");
+  // Gleicher Name -> immer gleiche Pastellfarbe
+  function farbe(name) {
+    let h = 0;
+    for (const c of name.toLowerCase()) h = (h * 31 + c.charCodeAt(0)) % 360;
+    return `hsl(${h}, 70%, 85%)`;
+  }
 
-    const haken = document.createElement("div");
-    haken.className = "haken";
-    haken.textContent = item.done ? "✓" : "";
-    haken.onclick = () => umschalten(item);
+  function kachel(item) {
+    const k = document.createElement("div");
+    k.className = "kachel" + (item.done ? " erledigt" : "");
+    k.style.background = farbe(item.name);
+    k.onclick = () => umschalten(item);
 
-    const text = document.createElement("span");
-    text.className = "text";
-    text.textContent = item.name;
-    text.onclick = () => umschalten(item);
+    const name = document.createElement("div");
+    name.className = "name";
+    name.textContent = item.name;
+    k.appendChild(name);
 
-    const menge = document.createElement("span");
-    menge.className = "menge";
-    menge.textContent = formatMenge(item);
+    const m = formatMenge(item);
+    if (m) {
+      const menge = document.createElement("div");
+      menge.className = "menge";
+      menge.textContent = m;
+      k.appendChild(menge);
+    }
 
-    const bearbeiten = document.createElement("button");
-    bearbeiten.textContent = "✎";
-    bearbeiten.title = "Menge ändern";
-    bearbeiten.onclick = () => mengeAendern(item);
+    const mehr = document.createElement("button");
+    mehr.className = "mehr";
+    mehr.textContent = "⋯";
+    mehr.title = "Bearbeiten";
+    mehr.onclick = (e) => { e.stopPropagation(); oeffneDialog(item); };
+    k.appendChild(mehr);
 
-    const loeschen = document.createElement("button");
-    loeschen.textContent = "✕";
-    loeschen.title = "Löschen";
-    loeschen.onclick = () => loesche(item);
-
-    li.append(haken, text, menge, bearbeiten, loeschen);
-    return li;
+    return k;
   }
 
   async function ladeListe() {
@@ -139,10 +182,10 @@
     const offen = data.filter((i) => !i.done);
     const erledigt = data.filter((i) => i.done);
 
-    $("offen").replaceChildren(...offen.map(zeile));
-    $("erledigt").replaceChildren(...erledigt.map(zeile));
+    $("offen").replaceChildren(...offen.map(kachel));
+    $("erledigt").replaceChildren(...erledigt.map(kachel));
     if (offen.length === 0) {
-      const p = document.createElement("li");
+      const p = document.createElement("div");
       p.className = "leer";
       p.textContent = "Alles besorgt – oder noch nichts geplant.";
       $("offen").appendChild(p);
@@ -153,20 +196,6 @@
   // ---------- Aktionen ----------
   async function umschalten(item) {
     const { error } = await db.from("shopping_items").update({ done: !item.done }).eq("id", item.id);
-    if (error) alert(error.message);
-  }
-
-  async function mengeAendern(item) {
-    const eingabe = prompt(`Neue Menge für „${item.name}" (leer = ohne Menge):`, item.amount ?? "");
-    if (eingabe === null) return;
-    const zahl = eingabe.trim() === "" ? null : Number(eingabe.replace(",", "."));
-    if (zahl !== null && (Number.isNaN(zahl) || zahl < 0)) { alert("Bitte eine Zahl eingeben."); return; }
-    const { error } = await db.from("shopping_items").update({ amount: zahl }).eq("id", item.id);
-    if (error) alert(error.message);
-  }
-
-  async function loesche(item) {
-    const { error } = await db.from("shopping_items").delete().eq("id", item.id);
     if (error) alert(error.message);
   }
 
@@ -193,6 +222,39 @@
     f.name.focus();
   };
 
+  // ---------- Bearbeiten-Dialog ----------
+  function oeffneDialog(item) {
+    bearbeiteId = item.id;
+    const f = $("editForm");
+    f.dname.value = item.name;
+    f.dmenge.value = item.amount ?? "";
+    f.deinheit.value = item.unit ?? "";
+    $("dialog").showModal();
+  }
+
+  $("dAbbrechen").onclick = () => $("dialog").close();
+
+  $("dLoeschen").onclick = async () => {
+    const { error } = await db.from("shopping_items").delete().eq("id", bearbeiteId);
+    if (error) { alert(error.message); return; }
+    $("dialog").close();
+  };
+
+  $("editForm").onsubmit = async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const name = f.dname.value.trim();
+    if (!name) return;
+    const menge = f.dmenge.value === "" ? null : Number(f.dmenge.value);
+    const einheit = f.deinheit.value || null;
+    const { error } = await db
+      .from("shopping_items")
+      .update({ name, amount: menge, unit: einheit })
+      .eq("id", bearbeiteId);
+    if (error) { alert(error.message); return; }
+    $("dialog").close();
+  };
+
   // ---------- Live-Sync ----------
   function liveSync() {
     if (kanal) return;
@@ -213,7 +275,6 @@
     $("logoutBtn").classList.toggle("hidden", !eingeloggt);
     if (!eingeloggt) return;
 
-    // Haushalt des eingeloggten Nutzers finden
     const { data: mitglied, error } = await db
       .from("household_members")
       .select("household_id")
