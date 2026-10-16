@@ -15,7 +15,7 @@
     button { background: #2f7d4f; color: #fff; border: none; cursor: pointer; }
     button.sekundaer { background: #e3e5e8; color: #333; }
     button.gefahr { background: #c0392b; }
-    .hidden { display: none; }
+    .hidden { display: none !important; }
     .karte { background: #fff; border-radius: 12px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
     .login input { width: 100%; margin-bottom: 8px; }
     .login button { width: 100%; }
@@ -24,11 +24,18 @@
     .kopf button { padding: 8px 12px; font-size: 14px; }
 
     /* Neues Produkt */
-    .neu { display: grid; grid-template-columns: 1fr 80px 90px; gap: 8px; margin-bottom: 8px; }
-    .neu input[name="name"] { grid-column: 1 / -1; }
-    .neu button { grid-column: 1 / -1; }
+    .neu { display: grid; grid-template-columns: 1fr 100px; gap: 8px; margin-bottom: 8px; }
+    .neu .voll { grid-column: 1 / -1; }
+    .vorschlaege { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .chip { background: #fff; border: 1px solid #cfd3d8; color: #222; border-radius: 999px; padding: 8px 14px; font-size: 15px; }
+    .chip.neuchip { border-style: dashed; color: #2f7d4f; border-color: #2f7d4f; }
+    .chip.egal { background: #eef6f1; border-color: #2f7d4f; }
+    .hinweis { font-size: 14px; color: #666; width: 100%; }
+    .neupanel { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; background: #fff; border-radius: 12px; padding: 10px; border: 1px dashed #2f7d4f; }
+    .neupanel .hinweis { grid-column: 1 / -1; }
 
-    /* Kachel-Raster */
+    /* Kategorien + Kachel-Raster */
+    .kat { font-size: 13px; font-weight: 600; color: #666; margin: 16px 0 6px; }
     .raster { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     @media (max-width: 340px) { .raster { grid-template-columns: repeat(2, 1fr); } }
     .kachel { position: relative; aspect-ratio: 1 / 1; border-radius: 16px; display: flex; flex-direction: column;
@@ -43,16 +50,20 @@
     .kachel.erledigt { opacity: .5; background: #e3e5e8 !important; }
     .kachel.erledigt .name { text-decoration: line-through; }
     .kachel.erledigt::after { content: "✓"; position: absolute; bottom: 6px; right: 10px; color: #2f7d4f; font-size: 20px; font-weight: bold; }
-    .leer { color: #999; text-align: center; padding: 16px; grid-column: 1 / -1; }
+    .leer { color: #999; text-align: center; padding: 16px; }
 
-    /* Bearbeiten-Dialog */
+    /* Dialog */
     dialog { border: none; border-radius: 16px; padding: 16px; width: min(92vw, 360px); }
     dialog::backdrop { background: rgba(0,0,0,.4); }
     dialog h3 { margin: 0 0 12px; }
     dialog .zeile { display: grid; grid-template-columns: 1fr 100px; gap: 8px; margin-bottom: 8px; }
-    dialog input[name="dname"] { width: 100%; margin-bottom: 8px; }
+    dialog input[name="dname"], dialog select[name="dkat"] { width: 100%; margin-bottom: 8px; }
     dialog .knoepfe { display: flex; gap: 8px; margin-top: 12px; }
     dialog .knoepfe button { flex: 1; }
+
+    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #333; color: #fff;
+             padding: 10px 16px; border-radius: 999px; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .2s; }
+    #toast.sichtbar { opacity: .95; }
   </style>
 </head>
 <body>
@@ -72,20 +83,26 @@
 
   <!-- App -->
   <div id="appBox" class="hidden">
-    <form id="neuForm" class="neu">
-      <input name="name" placeholder="Was brauchst du?" required autocomplete="off">
-      <input name="menge" type="number" min="0" step="any" placeholder="Menge" inputmode="decimal">
-      <select name="einheit">
+    <form id="neuForm" class="neu" autocomplete="off">
+      <input id="inName" class="voll" placeholder="Was brauchst du?" autocomplete="off">
+      <div id="vorschlaege" class="vorschlaege voll"></div>
+      <div id="neuPanel" class="neupanel voll hidden">
+        <div class="hinweis" id="neuHinweis"></div>
+        <select id="neuKat"></select>
+        <button type="button" id="neuBtn">Anlegen</button>
+      </div>
+      <input id="inMenge" type="number" min="0" step="any" placeholder="Menge (optional)" inputmode="decimal">
+      <select id="inEinheit">
         <option value="">–</option>
         <option value="g">g</option>
         <option value="ml">ml</option>
         <option value="Stück">Stück</option>
       </select>
-      <button type="submit">Hinzufügen</button>
+      <button type="submit" class="voll">Hinzufügen</button>
     </form>
 
     <h2>Noch zu kaufen</h2>
-    <div id="offen" class="raster"></div>
+    <div id="offen"></div>
 
     <div class="kopf">
       <h2>Erledigt</h2>
@@ -100,6 +117,7 @@
   <form method="dialog" id="editForm">
     <h3>Produkt bearbeiten</h3>
     <input name="dname" placeholder="Name" required autocomplete="off">
+    <select name="dkat"></select>
     <div class="zeile">
       <input name="dmenge" type="number" min="0" step="any" placeholder="Menge" inputmode="decimal">
       <select name="deinheit">
@@ -117,6 +135,8 @@
   </form>
 </dialog>
 
+<div id="toast"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   // >>> HIER DEINE WERTE EINTRAGEN (Project Settings > API) <<<
@@ -129,8 +149,20 @@
   let haushaltId = null;
   let kanal = null;
   let bearbeiteId = null;
+  let kategorien = [];   // aus Tabelle categories
+  let katalog = [];      // aus Tabelle ingredients
+  let items = [];        // aktuelle Einkaufsliste
 
-  // ---------- Anzeige ----------
+  // ---------- Hilfsfunktionen ----------
+  let toastTimer;
+  function toast(text) {
+    const t = $("toast");
+    t.textContent = text;
+    t.classList.add("sichtbar");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("sichtbar"), 1800);
+  }
+
   function formatMenge(item) {
     if (item.amount == null) return "";
     return `${Number(item.amount)} ${item.unit ?? ""}`.trim();
@@ -143,6 +175,29 @@
     return `hsl(${h}, 70%, 85%)`;
   }
 
+  function fuelleKatSelect(sel, wert) {
+    sel.replaceChildren();
+    sel.add(new Option("– keine Kategorie –", ""));
+    kategorien.forEach((c) => sel.add(new Option(c.name, c.id)));
+    sel.value = wert == null ? "" : String(wert);
+  }
+
+  const sonstigesId = () => kategorien.find((c) => c.name === "Sonstiges")?.id ?? null;
+  const hatKinder = (ing) => katalog.some((i) => i.parent_id === ing.id);
+
+  // ---------- Katalog laden ----------
+  async function ladeKatalog() {
+    const [k, i] = await Promise.all([
+      db.from("categories").select("*").order("sort_order"),
+      db.from("ingredients").select("*").order("name"),
+    ]);
+    if (k.error || i.error) { console.error(k.error || i.error); return; }
+    kategorien = k.data;
+    katalog = i.data;
+    fuelleKatSelect($("neuKat"), sonstigesId());
+  }
+
+  // ---------- Kachel + Liste ----------
   function kachel(item) {
     const k = document.createElement("div");
     k.className = "kachel" + (item.done ? " erledigt" : "");
@@ -168,8 +223,46 @@
     mehr.title = "Bearbeiten";
     mehr.onclick = (e) => { e.stopPropagation(); oeffneDialog(item); };
     k.appendChild(mehr);
-
     return k;
+  }
+
+  function zeichne() {
+    const offen = items.filter((i) => !i.done);
+    const erledigt = items.filter((i) => i.done);
+
+    // Offene Artikel nach Kategorie gruppieren (in Laden-Reihenfolge)
+    const bekannt = new Set(kategorien.map((c) => c.id));
+    const gruppen = new Map();
+    for (const it of offen) {
+      let key = it.category_id && bekannt.has(it.category_id) ? it.category_id : (sonstigesId() ?? 0);
+      if (!gruppen.has(key)) gruppen.set(key, []);
+      gruppen.get(key).push(it);
+    }
+
+    const abschnitte = [];
+    const reihenfolge = [...kategorien.map((c) => c.id), 0];
+    for (const key of reihenfolge) {
+      const liste = gruppen.get(key);
+      if (!liste) continue;
+      const titel = key === 0 ? "Sonstiges" : kategorien.find((c) => c.id === key).name;
+      const h = document.createElement("div");
+      h.className = "kat";
+      h.textContent = titel;
+      const r = document.createElement("div");
+      r.className = "raster";
+      r.replaceChildren(...liste.map(kachel));
+      abschnitte.push(h, r);
+    }
+
+    if (abschnitte.length === 0) {
+      const p = document.createElement("div");
+      p.className = "leer";
+      p.textContent = "Alles besorgt – oder noch nichts geplant.";
+      abschnitte.push(p);
+    }
+    $("offen").replaceChildren(...abschnitte);
+    $("erledigt").replaceChildren(...erledigt.map(kachel));
+    $("aufraeumenBtn").classList.toggle("hidden", erledigt.length === 0);
   }
 
   async function ladeListe() {
@@ -178,19 +271,8 @@
       .select("*")
       .order("created_at", { ascending: true });
     if (error) { console.error(error); return; }
-
-    const offen = data.filter((i) => !i.done);
-    const erledigt = data.filter((i) => i.done);
-
-    $("offen").replaceChildren(...offen.map(kachel));
-    $("erledigt").replaceChildren(...erledigt.map(kachel));
-    if (offen.length === 0) {
-      const p = document.createElement("div");
-      p.className = "leer";
-      p.textContent = "Alles besorgt – oder noch nichts geplant.";
-      $("offen").appendChild(p);
-    }
-    $("aufraeumenBtn").classList.toggle("hidden", erledigt.length === 0);
+    items = data;
+    zeichne();
   }
 
   // ---------- Aktionen ----------
@@ -204,22 +286,141 @@
     if (error) alert(error.message);
   };
 
-  $("neuForm").onsubmit = async (e) => {
-    e.preventDefault();
-    const f = e.target;
-    const name = f.name.value.trim();
-    if (!name) return;
-    const menge = f.menge.value === "" ? null : Number(f.menge.value);
-    const einheit = f.einheit.value || null;
+  // ---------- Eingabe mit Vorschlägen ----------
+  function leereEingabe() {
+    $("inName").value = "";
+    $("inMenge").value = "";
+    $("inEinheit").value = "";
+    $("vorschlaege").replaceChildren();
+    $("neuPanel").classList.add("hidden");
+  }
+
+  function chip(text, klasse, onclick) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip " + (klasse || "");
+    b.textContent = text;
+    b.onclick = onclick;
+    return b;
+  }
+
+  function zeigeVorschlaege() {
+    const box = $("vorschlaege");
+    box.replaceChildren();
+    $("neuPanel").classList.add("hidden");
+    const eingabe = $("inName").value.trim();
+    if (!eingabe) return;
+    const q = eingabe.toLowerCase();
+
+    const treffer = katalog
+      .filter((i) => i.name.toLowerCase().includes(q))
+      .sort((a, b) => {
+        const sa = a.name.toLowerCase().startsWith(q) ? 0 : 1;
+        const sb = b.name.toLowerCase().startsWith(q) ? 0 : 1;
+        return sa - sb || a.name.localeCompare(b.name, "de");
+      })
+      .slice(0, 6);
+
+    treffer.forEach((ing) =>
+      box.appendChild(chip(ing.name + (hatKinder(ing) ? " ▸" : ""), "", () => waehle(ing)))
+    );
+
+    const exakt = katalog.some((i) => i.name.toLowerCase() === q);
+    if (!exakt) {
+      box.appendChild(chip(`＋ „${eingabe}" neu anlegen`, "neuchip", () => zeigeNeuPanel(eingabe)));
+    }
+  }
+
+  function waehle(ing) {
+    if (hatKinder(ing)) zeigeSorten(ing);
+    else fuegeHinzu(ing);
+  }
+
+  function zeigeSorten(eltern) {
+    const box = $("vorschlaege");
+    box.replaceChildren();
+    const hinweis = document.createElement("div");
+    hinweis.className = "hinweis";
+    hinweis.textContent = `Welche Sorte: ${eltern.name}?`;
+    box.appendChild(hinweis);
+    box.appendChild(chip(`${eltern.name} (egal)`, "egal", () => fuegeHinzu(eltern)));
+    katalog
+      .filter((i) => i.parent_id === eltern.id)
+      .forEach((kind) => box.appendChild(chip(kind.name, "", () => fuegeHinzu(kind))));
+  }
+
+  function zeigeNeuPanel(name) {
+    $("vorschlaege").replaceChildren();
+    const schoen = name.charAt(0).toUpperCase() + name.slice(1);
+    $("neuHinweis").textContent = `Neues Produkt „${schoen}" – in welche Kategorie gehört es?`;
+    $("neuPanel").dataset.name = schoen;
+    fuelleKatSelect($("neuKat"), sonstigesId());
+    $("neuPanel").classList.remove("hidden");
+  }
+
+  $("neuBtn").onclick = async () => {
+    const name = $("neuPanel").dataset.name;
+    const katWert = $("neuKat").value;
+    const { data, error } = await db
+      .from("ingredients")
+      .insert({
+        household_id: haushaltId,
+        name,
+        category_id: katWert === "" ? null : Number(katWert),
+      })
+      .select()
+      .single();
+    if (error) { alert(error.message); return; }
+    katalog.push(data);
+    fuegeHinzu(data);
+  };
+
+  async function fuegeHinzu(ing) {
+    const menge = $("inMenge").value === "" ? null : Number($("inMenge").value);
+    const einheit = $("inEinheit").value || ing.default_unit || null;
+
+    // Schon auf der Liste?
+    const gleich = items.find((i) => !i.done && i.name.toLowerCase() === ing.name.toLowerCase());
+    if (gleich) {
+      if (gleich.amount != null && menge != null && (gleich.unit ?? null) === einheit) {
+        const { error } = await db
+          .from("shopping_items")
+          .update({ amount: Number(gleich.amount) + menge })
+          .eq("id", gleich.id);
+        if (error) { alert(error.message); return; }
+        toast(`${ing.name}: Menge erhöht`);
+        leereEingabe();
+        return;
+      }
+      if (gleich.amount == null && menge == null) {
+        toast(`${ing.name} steht schon auf der Liste`);
+        leereEingabe();
+        return;
+      }
+    }
+
     const { error } = await db.from("shopping_items").insert({
       household_id: haushaltId,
-      name,
+      name: ing.name,
       amount: menge,
       unit: einheit,
+      ingredient_id: ing.id,
+      category_id: ing.category_id,
     });
     if (error) { alert(error.message); return; }
-    f.reset();
-    f.name.focus();
+    leereEingabe();
+    $("inName").focus();
+  }
+
+  $("inName").addEventListener("input", zeigeVorschlaege);
+
+  $("neuForm").onsubmit = (e) => {
+    e.preventDefault();
+    const eingabe = $("inName").value.trim();
+    if (!eingabe) return;
+    const exakt = katalog.find((i) => i.name.toLowerCase() === eingabe.toLowerCase());
+    if (exakt) waehle(exakt);
+    else zeigeNeuPanel(eingabe);
   };
 
   // ---------- Bearbeiten-Dialog ----------
@@ -227,6 +428,7 @@
     bearbeiteId = item.id;
     const f = $("editForm");
     f.dname.value = item.name;
+    fuelleKatSelect(f.dkat, item.category_id);
     f.dmenge.value = item.amount ?? "";
     f.deinheit.value = item.unit ?? "";
     $("dialog").showModal();
@@ -247,9 +449,10 @@
     if (!name) return;
     const menge = f.dmenge.value === "" ? null : Number(f.dmenge.value);
     const einheit = f.deinheit.value || null;
+    const kat = f.dkat.value === "" ? null : Number(f.dkat.value);
     const { error } = await db
       .from("shopping_items")
-      .update({ name, amount: menge, unit: einheit })
+      .update({ name, amount: menge, unit: einheit, category_id: kat })
       .eq("id", bearbeiteId);
     if (error) { alert(error.message); return; }
     $("dialog").close();
@@ -265,6 +468,11 @@
           () => ladeListe())
       .subscribe();
   }
+
+  // Katalog aktualisieren, wenn die App wieder in den Vordergrund kommt
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && haushaltId) ladeKatalog().then(zeichne);
+  });
 
   // ---------- Login / Start ----------
   async function starte() {
@@ -285,7 +493,8 @@
       return;
     }
     haushaltId = mitglied.household_id;
-    ladeListe();
+    await ladeKatalog();
+    await ladeListe();
     liveSync();
   }
 
