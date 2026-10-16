@@ -3,100 +3,247 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Supabase Test</title>
+  <title>Einkaufsliste</title>
   <style>
-    body { font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 16px; }
-    input, button { font-size: 16px; padding: 10px; margin: 4px 0; width: 100%; box-sizing: border-box; }
-    li { padding: 6px 0; border-bottom: 1px solid #ddd; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; margin: 0; background: #f5f6f8; color: #222; }
+    .wrap { max-width: 520px; margin: 0 auto; padding: 16px; }
+    h1 { font-size: 22px; margin: 8px 0 16px; }
+    h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .05em; color: #777; margin: 24px 0 8px; }
+    input, select, button { font-size: 16px; padding: 12px; border-radius: 10px; border: 1px solid #ccc; }
+    input, select { background: #fff; }
+    button { background: #2f7d4f; color: #fff; border: none; cursor: pointer; }
+    button.sekundaer { background: #e3e5e8; color: #333; }
     .hidden { display: none; }
-    #fehler { color: #c00; }
+    .karte { background: #fff; border-radius: 12px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .login input { width: 100%; margin-bottom: 8px; }
+    .login button { width: 100%; }
+    #fehler { color: #c00; min-height: 1.2em; }
+
+    .neu { display: grid; grid-template-columns: 1fr 80px 90px; gap: 8px; margin-bottom: 8px; }
+    .neu input[name="name"] { grid-column: 1 / -1; }
+    .neu button { grid-column: 1 / -1; }
+
+    ul { list-style: none; margin: 0; padding: 0; }
+    li { display: flex; align-items: center; gap: 10px; background: #fff; padding: 10px 12px;
+         border-radius: 12px; margin-bottom: 6px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+    li .haken { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #2f7d4f; flex: none;
+                display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; cursor: pointer; }
+    li.erledigt .haken { background: #2f7d4f; }
+    li.erledigt .text { text-decoration: line-through; color: #999; }
+    li .text { flex: 1; cursor: pointer; }
+    li .menge { color: #555; font-variant-numeric: tabular-nums; }
+    li button { background: transparent; color: #666; padding: 6px 8px; font-size: 18px; }
+    .leer { color: #999; text-align: center; padding: 16px; }
+    .kopf { display: flex; justify-content: space-between; align-items: center; }
+    .kopf button { padding: 8px 12px; font-size: 14px; }
   </style>
 </head>
 <body>
-  <h1>Supabase Test</h1>
+<div class="wrap">
+  <div class="kopf">
+    <h1>🛒 Einkaufsliste</h1>
+    <button id="logoutBtn" class="sekundaer hidden">Ausloggen</button>
+  </div>
 
   <!-- Login -->
-  <div id="loginBox">
-    <input id="email" type="email" placeholder="E-Mail">
-    <input id="passwort" type="password" placeholder="Passwort">
+  <div id="loginBox" class="karte login">
+    <input id="email" type="email" placeholder="E-Mail" autocomplete="username">
+    <input id="passwort" type="password" placeholder="Passwort" autocomplete="current-password">
     <button id="loginBtn">Einloggen</button>
     <p id="fehler"></p>
   </div>
 
-  <!-- Notizen -->
+  <!-- App -->
   <div id="appBox" class="hidden">
-    <input id="notiz" placeholder="Neue Notiz">
-    <button id="speichernBtn">Speichern</button>
-    <ul id="liste"></ul>
-    <button id="logoutBtn">Ausloggen</button>
+    <form id="neuForm" class="neu">
+      <input name="name" placeholder="Was brauchst du?" required autocomplete="off">
+      <input name="menge" type="number" min="0" step="any" placeholder="Menge" inputmode="decimal">
+      <select name="einheit">
+        <option value="">–</option>
+        <option value="g">g</option>
+        <option value="ml">ml</option>
+        <option value="Stück">Stück</option>
+      </select>
+      <button type="submit">Hinzufügen</button>
+    </form>
+
+    <h2>Noch zu kaufen</h2>
+    <ul id="offen"></ul>
+
+    <div class="kopf">
+      <h2>Erledigt</h2>
+      <button id="aufraeumenBtn" class="sekundaer">Erledigte löschen</button>
+    </div>
+    <ul id="erledigt"></ul>
   </div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // >>> HIER DEINE WERTE EINTRAGEN (Project Settings > API) <<<
-    const SUPABASE_URL = "https://unjhgjyitnwrsttuilet.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_sQyBR00qNzND25hj0PeCDA_HEzEfipZ";
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // >>> HIER DEINE WERTE EINTRAGEN (Project Settings > API) <<<
+  const SUPABASE_URL = "https://unjhgjyitnwrsttuilet.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_sQyBR00qNzND25hj0PeCDA_HEzEfipZ";
 
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const $ = (id) => document.getElementById(id);
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const $ = (id) => document.getElementById(id);
 
-    async function ladeNotizen() {
-      const { data, error } = await db
-        .from("test_notes")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) { console.error(error); return; }
-      $("liste").innerHTML = "";
-      data.forEach((n) => {
-        const li = document.createElement("li");
-        li.textContent = n.text;
-        $("liste").appendChild(li);
-      });
+  let haushaltId = null;
+  let kanal = null;
+
+  // ---------- Anzeige ----------
+  function formatMenge(item) {
+    if (item.amount == null) return "";
+    return `${Number(item.amount)} ${item.unit ?? ""}`.trim();
+  }
+
+  function zeile(item) {
+    const li = document.createElement("li");
+    if (item.done) li.classList.add("erledigt");
+
+    const haken = document.createElement("div");
+    haken.className = "haken";
+    haken.textContent = item.done ? "✓" : "";
+    haken.onclick = () => umschalten(item);
+
+    const text = document.createElement("span");
+    text.className = "text";
+    text.textContent = item.name;
+    text.onclick = () => umschalten(item);
+
+    const menge = document.createElement("span");
+    menge.className = "menge";
+    menge.textContent = formatMenge(item);
+
+    const bearbeiten = document.createElement("button");
+    bearbeiten.textContent = "✎";
+    bearbeiten.title = "Menge ändern";
+    bearbeiten.onclick = () => mengeAendern(item);
+
+    const loeschen = document.createElement("button");
+    loeschen.textContent = "✕";
+    loeschen.title = "Löschen";
+    loeschen.onclick = () => loesche(item);
+
+    li.append(haken, text, menge, bearbeiten, loeschen);
+    return li;
+  }
+
+  async function ladeListe() {
+    const { data, error } = await db
+      .from("shopping_items")
+      .select("*")
+      .order("created_at", { ascending: true });
+    if (error) { console.error(error); return; }
+
+    const offen = data.filter((i) => !i.done);
+    const erledigt = data.filter((i) => i.done);
+
+    $("offen").replaceChildren(...offen.map(zeile));
+    $("erledigt").replaceChildren(...erledigt.map(zeile));
+    if (offen.length === 0) {
+      const p = document.createElement("li");
+      p.className = "leer";
+      p.textContent = "Alles besorgt – oder noch nichts geplant.";
+      $("offen").appendChild(p);
     }
+    $("aufraeumenBtn").classList.toggle("hidden", erledigt.length === 0);
+  }
 
-    let kanal = null;
-    function liveSync() {
-      if (kanal) return;
-      kanal = db
-        .channel("notes-live")
-        .on("postgres_changes",
-            { event: "*", schema: "public", table: "test_notes" },
-            () => ladeNotizen())
-        .subscribe();
+  // ---------- Aktionen ----------
+  async function umschalten(item) {
+    const { error } = await db.from("shopping_items").update({ done: !item.done }).eq("id", item.id);
+    if (error) alert(error.message);
+  }
+
+  async function mengeAendern(item) {
+    const eingabe = prompt(`Neue Menge für „${item.name}" (leer = ohne Menge):`, item.amount ?? "");
+    if (eingabe === null) return;
+    const zahl = eingabe.trim() === "" ? null : Number(eingabe.replace(",", "."));
+    if (zahl !== null && (Number.isNaN(zahl) || zahl < 0)) { alert("Bitte eine Zahl eingeben."); return; }
+    const { error } = await db.from("shopping_items").update({ amount: zahl }).eq("id", item.id);
+    if (error) alert(error.message);
+  }
+
+  async function loesche(item) {
+    const { error } = await db.from("shopping_items").delete().eq("id", item.id);
+    if (error) alert(error.message);
+  }
+
+  $("aufraeumenBtn").onclick = async () => {
+    const { error } = await db.from("shopping_items").delete().eq("done", true);
+    if (error) alert(error.message);
+  };
+
+  $("neuForm").onsubmit = async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const name = f.name.value.trim();
+    if (!name) return;
+    const menge = f.menge.value === "" ? null : Number(f.menge.value);
+    const einheit = f.einheit.value || null;
+    const { error } = await db.from("shopping_items").insert({
+      household_id: haushaltId,
+      name,
+      amount: menge,
+      unit: einheit,
+    });
+    if (error) { alert(error.message); return; }
+    f.reset();
+    f.name.focus();
+  };
+
+  // ---------- Live-Sync ----------
+  function liveSync() {
+    if (kanal) return;
+    kanal = db
+      .channel("einkaufsliste-live")
+      .on("postgres_changes",
+          { event: "*", schema: "public", table: "shopping_items" },
+          () => ladeListe())
+      .subscribe();
+  }
+
+  // ---------- Login / Start ----------
+  async function starte() {
+    const { data } = await db.auth.getSession();
+    const eingeloggt = !!data.session;
+    $("loginBox").classList.toggle("hidden", eingeloggt);
+    $("appBox").classList.toggle("hidden", !eingeloggt);
+    $("logoutBtn").classList.toggle("hidden", !eingeloggt);
+    if (!eingeloggt) return;
+
+    // Haushalt des eingeloggten Nutzers finden
+    const { data: mitglied, error } = await db
+      .from("household_members")
+      .select("household_id")
+      .limit(1)
+      .maybeSingle();
+    if (error || !mitglied) {
+      alert("Kein Haushalt gefunden. Ist dein Konto als Mitglied eingetragen?");
+      return;
     }
+    haushaltId = mitglied.household_id;
+    ladeListe();
+    liveSync();
+  }
 
-    async function zeigeAppOderLogin() {
-      const { data } = await db.auth.getSession();
-      const eingeloggt = !!data.session;
-      $("loginBox").classList.toggle("hidden", eingeloggt);
-      $("appBox").classList.toggle("hidden", !eingeloggt);
-      if (eingeloggt) { ladeNotizen(); liveSync(); }
-    }
+  $("loginBtn").onclick = async () => {
+    $("fehler").textContent = "";
+    const { error } = await db.auth.signInWithPassword({
+      email: $("email").value,
+      password: $("passwort").value,
+    });
+    if (error) { $("fehler").textContent = error.message; return; }
+    starte();
+  };
 
-    $("loginBtn").onclick = async () => {
-      $("fehler").textContent = "";
-      const { error } = await db.auth.signInWithPassword({
-        email: $("email").value,
-        password: $("passwort").value,
-      });
-      if (error) { $("fehler").textContent = error.message; return; }
-      zeigeAppOderLogin();
-    };
+  $("logoutBtn").onclick = async () => {
+    await db.auth.signOut();
+    location.reload();
+  };
 
-    $("speichernBtn").onclick = async () => {
-      const text = $("notiz").value.trim();
-      if (!text) return;
-      const { error } = await db.from("test_notes").insert({ text });
-      if (error) { alert(error.message); return; }
-      $("notiz").value = "";
-    };
-
-    $("logoutBtn").onclick = async () => {
-      await db.auth.signOut();
-      location.reload();
-    };
-
-    zeigeAppOderLogin();
-  </script>
+  starte();
+</script>
 </body>
 </html>
