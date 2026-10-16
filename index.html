@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kantine</title>
+    
+    <!-- Verknüpfung zur CSS-Datei (styles.css) -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 
+    ====================================
+    KANTINE-APP - HTML STRUKTUR
+    ====================================
+    
+    Diese Datei enthält die komplette HTML-Struktur der App.
+    
+    AUFBAU:
+    - Die App besteht aus verschiedenen "Bereichen" (div mit id)
+    - Immer nur EIN Bereich ist sichtbar, die anderen sind "hidden"
+    - Die Bereiche werden per JavaScript ein-/ausgeblendet
+    
+    BEREICHE:
+    1. startseite - Kategorieauswahl
+    2. benutzer-auswahl - Personenauswahl
+    3. bestell-bereich - Produktauswahl & Warenkorb
+    4. koch-bereich - Einkaufsliste & Schulden
+    5. guthaben-login - Passwort-Eingabe
+    6. guthaben-kategorie - Kategorie für Verwaltung
+    7. guthaben-personen - Guthaben aufladen/abziehen
+    8. preisverwaltung - Preise ändern
+    
+    WICHTIG:
+    - Alle onclick-Attribute rufen JavaScript-Funktionen auf
+    - Die Funktionen sind in app.js definiert
+    -->
+    <div class="container">
+        <!-- 
+        ====================================
+        HEADER-BUTTONS (oben rechts)
+        ====================================
+        Diese Buttons sind immer sichtbar:
+        - Küche: Öffnet Koch-Bereich (KEIN Passwort)
+        - Verwaltung: Öffnet Admin-Login (MIT Passwort)
+        -->
+        <div class="header-buttons-container">
+            <button class="header-btn" onclick="kochBereichOeffnen()">👨‍🍳 Küche</button>
+            <button class="header-btn" onclick="guthabenVerwaltungLoginOeffnen()">⚙️ Verwaltung</button>
+        </div>
+
+        <!-- 
+        ====================================
+        BEREICH 1: STARTSEITE
+        ====================================
+        Erste Seite die der Benutzer sieht.
+        Auswahl der Kategorie (Wachabteilung, B-Dienst, etc.)
+        -->
+        <div id="startseite">
+            <h1>🍽️ Kantine</h1>
+            
+            <div class="kategorie-grid">
+                <button class="kategorie-btn" onclick="kategorieAuswaehlen('wachabteilung')">
+                    Wachabteilung
+                </button>
+                <button class="kategorie-btn" onclick="kategorieAuswaehlen('bdienst')">
+                    B-Dienst
+                </button>
+                <button class="kategorie-btn" onclick="kategorieAuswaehlen('fahrer_bdienst')">
+                    Fahrer B-Dienst
+                </button>
+                <button class="kategorie-btn" onclick="kategorieAuswaehlen('azubi')">
+                    Auszubildende
+                </button>
+                <button class="kategorie-btn" onclick="kategorieAuswaehlen('gaeste')">
+                    Gäste
+                </button>
+                <button class="kategorie-btn" onclick="kategorieAuswaehlen('notarzt')">
+                    Notarzt
+                </button>
+            </div>
+        </div>
+
+        <!-- 
+        ====================================
+        BEREICH 2: BENUTZER-AUSWAHL
+        ====================================
+        Zeigt alle Personen der gewählten Kategorie.
+        Bei Gästen/Notarzt/Azubi: Leere Platzhalter + Name-Eingabe
+        -->
+        <div id="benutzer-auswahl" class="hidden">
+            <button class="zurück-btn" onclick="zurückZurStartseite()">← Zurück</button>
+            
+            <!-- Schulden-Warnung & Guthaben-Top (nur bei Wachabteilung) -->
+            <div id="schulden-warnung-box" class="hidden"></div>
+            <div id="guthaben-top-box" class="hidden"></div>
+            
+            <h1 id="kategorie-titel">Benutzer auswählen</h1>
+            
+            <!-- Info: Automatisch sortiert 
+            <div class="sortier-info">
+                📋 Sortiert nach Nachnamen (A-Z)
+            </div>
+            -->
+
+            
+            <!-- Benutzer-Liste (normale Seiten-Scroll) -->
+            <div class="benutzer-grid" id="benutzer-liste"></div>
+            
+            <!-- Name-Eingabe: Wird bei Gästen, Notarzt und Auszubildende angezeigt -->
+            <div id="platzhalter-eingabe-bereich" class="hidden">
+                <div class="gast-eingabe">
+                    <h2>Name eingeben</h2>
+                    <input 
+                        type="text" 
+                        id="platzhalter-name-input" 
+                        placeholder="Name eingeben"
+                        autocomplete="off"
+                        autocorrect="off"
+                        autocapitalize="words"
+                    >
+                    <button class="success" onclick="platzhalterNameSetzen()">Name speichern & weiter</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 
+        ====================================
+        BEREICH 3: BESTELL-BEREICH
+        ====================================
+        Hier kann der Benutzer:
+        - Produkte mit +/- Buttons auswählen
+        - Individuellen Betrag eingeben
+        - Warenkorb sehen (Zusammenfassung)
+        - Bestellung abschließen
+        - Heutige Bestellungen sehen (Tagesübersicht)
+        -->
+        <div id="bestell-bereich" class="hidden">
+            <button class="zurück-btn" onclick="zurückZuBenutzerauswahl()">← Zurück</button>
+            
+            <div class="guthaben-box">
+                <div>Angemeldet als: <strong id="aktueller-benutzer"></strong></div>
+                <div class="guthaben-betrag" id="guthaben-anzeige">0.00 €</div>
+            </div>
+
+            <h2>Produkte auswählen</h2>
+            
+            <!-- KATEGORISIERTE PRODUKTE -->
+            <div id="produkte-container"></div>
+
+            <!-- INDIVIDUELLER BETRAG -->
+            <div class="individueller-betrag">
+                <h3>💶 Individueller Betrag</h3>
+                <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 10px;">
+                    Für Sonderartikel oder manuelle Beträge
+                </p>
+                <div class="betrag-eingabe-container">
+                    <input 
+                        type="number" 
+                        id="individueller-betrag-input" 
+                        placeholder="Betrag in € (z.B. 2.50)" 
+                        step="0.01"
+                        inputmode="decimal"
+                        autocomplete="off"
+                    >
+                    <input 
+                        type="text" 
+                        id="individueller-bezeichnung-input" 
+                        placeholder="Bezeichnung (optional)"
+                        autocomplete="off"
+                        autocorrect="off"
+                        autocapitalize="words"
+                    >
+                    <button onclick="individuellenBetragHinzufugen()">Hinzufügen</button>
+                </div>
+            </div>
+
+            <h2>Warenkorb</h2>
+            <div id="warenkorb"></div>
+            <div style="text-align: right; margin-top: 20px;">
+                <strong style="font-size: 24px; color: #2c3e50;">Summe: <span id="summe-anzeige">0.00</span> €</strong>
+            </div>
+            
+            <button class="primary" onclick="bestellungAbschliessen()" style="width: 100%; padding: 20px; font-size: 20px; margin-top: 20px;">
+                Jetzt bestellen
+            </button>
+
+            <!-- Benutzer-Historie (Accordeon) - Letzte 30 Tage -->
+            <div class="tagesuebersicht-accordeon" id="benutzer-historie-accordeon" style="margin-top: 30px;">
+                <button class="tagesuebersicht-header" onclick="benutzerHistorieToggle()">
+                    <span>📋 Bestellhistorie (letzte 30 Tage)</span>
+                    <span class="tagesuebersicht-badge" id="benutzer-historie-badge">0 Einträge</span>
+                    <span class="tagesuebersicht-arrow" id="benutzer-historie-arrow">▼</span>
+                </button>
+                <div class="tagesuebersicht-inhalt hidden" id="benutzer-historie-inhalt">
+                    <div id="benutzer-historie-liste"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 
+        ====================================
+        BEREICH 4: KOCH-BEREICH
+        ====================================
+        WICHTIG: Kein Passwort erforderlich!
+        
+        Zeigt:
+        - Einkaufsliste (wie viele Brötchen etc. bestellt wurden)
+        - Gesamtschulden (Summe aller negativen Guthaben)
+        - Tagesabschluss-Button (setzt Einkaufsliste auf 0)
+        -->
+        <div id="koch-bereich" class="hidden">
+            <button class="zurück-btn" onclick="zurückZurStartseite()">← Zurück</button>
+            
+            <h1>👨‍🍳 Küchen-Bereich</h1>
+
+            <!-- Einkaufsliste -->
+            <div class="einkaufsliste">
+                <h2>📋 Einkaufsliste</h2>
+                <div id="einkaufsliste-anzeige"></div>
+                <button class="danger" onclick="tagesabschluss()" style="margin-top: 20px; width: 100%; padding: 15px;">
+                    🗑️ Tagesabschluss (Einkaufsliste/Tagesbestellungen auf 0 setzen & Backup)
+                </button>
+            </div>
+
+            <!-- Abendessen-Abrechnung -->
+            <div class="einkaufsliste" style="background: #fff3cd; border: 2px solid #ffc107;">
+                <h2>🍽️ Abendessen abrechnen</h2>
+                <div id="abendessen-liste"></div>
+            </div>
+
+            <!-- Schulden-Übersicht (GESAMT) -->
+            <div class="schulden-box">
+                <h2>💰 Gesamtschulden</h2>
+                <div class="schulden-betrag" id="schulden-betrag">0.00 €</div>
+            </div>
+        </div>
+
+        <!-- ===== GUTHABEN-VERWALTUNG LOGIN ===== -->
+        <div id="guthaben-login" class="hidden">
+            <button class="zurück-btn" onclick="zurückZurStartseite()">← Zurück</button>
+            
+            <h1>⚙️ Verwaltung</h1>
+            
+            <div class="admin-section">
+                <h2>Passwort eingeben</h2>
+                <input type="password" id="admin-passwort" placeholder="Passwort">
+                <button class="primary" onclick="guthabenVerwaltungLogin()">Anmelden</button>
+            </div>
+        </div>
+
+        <!-- ===== GUTHABEN-VERWALTUNG KATEGORIE-AUSWAHL ===== -->
+        <div id="guthaben-kategorie" class="hidden">
+            <button class="zurück-btn" onclick="guthabenVerwaltungAbmelden()">← Guthaben-Verwaltung verlassen</button>
+            
+            <h1>💳 Guthaben verwalten</h1>
+            
+            <div class="kategorie-grid">
+                <button class="kategorie-btn" onclick="guthabenKategorieAuswaehlen('wachabteilung')">
+                    Wachabteilung
+                </button>
+                <button class="kategorie-btn" onclick="guthabenKategorieAuswaehlen('bdienst')">
+                    B-Dienst
+                </button>
+                <button class="kategorie-btn" onclick="guthabenKategorieAuswaehlen('fahrer_bdienst')">
+                    Fahrer B-Dienst
+                </button>
+                <button class="kategorie-btn" onclick="guthabenKategorieAuswaehlen('azubi')">
+                    Auszubildende
+                </button>
+                <button class="kategorie-btn" onclick="guthabenKategorieAuswaehlen('gaeste')">
+                    Gäste
+                </button>
+                <button class="kategorie-btn" onclick="guthabenKategorieAuswaehlen('notarzt')">
+                    Notarzt
+                </button>
+            </div>
+            
+            <!-- VERWALTUNGS-BUTTONS (einheitlich gestylt) -->
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 40px; padding-top: 30px; border-top: 2px solid #ecf0f1;">
+                <button class="kategorie-btn" onclick="preisverwaltungOeffnen()" style="width: 400px; background: #ecf0f1; border-color: #95a5a6;">
+                    💶 Preisverwaltung
+                </button>
+
+                <button class="kategorie-btn" onclick="wachabteilungBearbeitenOeffnen()" style="width: 400px; background: #ecf0f1; border-color: #95a5a6;">
+                    👥 Wachabteilung bearbeiten
+                </button>
+            </div>
+
+            <!-- BACKUP & RESTORE BUTTONS -->
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 40px; padding-top: 30px; border-top: 2px solid #ecf0f1;">
+                <h3 style="color: #7f8c8d; margin-bottom: 8px;">💾 Datensicherung</h3>
+                
+                <button class="kategorie-btn" onclick="backupErstellen()" style="width: 400px; background: #3498db; border-color: #2980b9; color: white;">
+                    💾 Backup erstellen
+                </button>
+                
+                <button class="kategorie-btn danger" onclick="backupWiederherstellen()" style="width: 400px;">
+                    🔴 Backup wiederherstellen
+                </button>
+                
+                <p style="color: #95a5a6; font-size: 13px; max-width: 500px; margin: 15px auto 0; text-align: center;">
+                    <strong>Tipp:</strong> Erstelle regelmäßig ein Backup, um deine Daten zu sichern. 
+                    Bei App-Updates: Backup erstellen → Browser-Daten löschen → Backup wiederherstellen.
+                </p>
+            </div>
+
+            <!-- DESIGN / FARBSCHEMA AUSWAHL -->
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 40px; padding-top: 30px; border-top: 2px solid #ecf0f1;">
+                <h3 style="color: #7f8c8d; margin-bottom: 8px;">🎨 Design</h3>
+
+                <div class="design-optionen">
+                    <button id="design-btn-klassisch" class="design-option" onclick="designAnwenden('klassisch')">
+                        <span class="design-swatches">
+                            <span class="design-swatch" style="background: #667eea;"></span>
+                            <span class="design-swatch" style="background: #34495e;"></span>
+                            <span class="design-swatch" style="background: #27ae60;"></span>
+                        </span>
+                        <span class="design-option-name">Klassisch</span>
+                    </button>
+
+                    <button id="design-btn-anthrazit" class="design-option" onclick="designAnwenden('anthrazit')">
+                        <span class="design-swatches">
+                            <span class="design-swatch" style="background: #2d3748;"></span>
+                            <span class="design-swatch" style="background: #1a202c;"></span>
+                            <span class="design-swatch" style="background: #319795;"></span>
+                        </span>
+                        <span class="design-option-name">Anthrazit &amp; Petrol</span>
+                    </button>
+
+                    <button id="design-btn-sandbeige" class="design-option" onclick="designAnwenden('sandbeige')">
+                        <span class="design-swatches">
+                            <span class="design-swatch" style="background: #a47551;"></span>
+                            <span class="design-swatch" style="background: #8f6342;"></span>
+                            <span class="design-swatch" style="background: #6f8f5b;"></span>
+                        </span>
+                        <span class="design-option-name">Warmes Sandbeige</span>
+                    </button>
+
+                    <button id="design-btn-salbeigruen" class="design-option" onclick="designAnwenden('salbeigruen')">
+                        <span class="design-swatches">
+                            <span class="design-swatch" style="background: #4f7d6e;"></span>
+                            <span class="design-swatch" style="background: #3f6a5c;"></span>
+                            <span class="design-swatch" style="background: #3f8f78;"></span>
+                        </span>
+                        <span class="design-option-name">Frisches Salbeigrün</span>
+                    </button>
+                </div>
+
+                <p style="color: #95a5a6; font-size: 13px; max-width: 500px; margin: 5px auto 0; text-align: center;">
+                    Gilt für alle, die diese App auf diesem Gerät öffnen.
+                </p>
+            </div>
+        </div>
+
+        <!-- ===== GUTHABEN-VERWALTUNG PERSONEN-LISTE ===== -->
+        <div id="guthaben-personen" class="hidden">
+            <button class="zurück-btn" onclick="zurückZuGuthabenKategorie()">← Zurück zu Kategorien</button>
+            
+            <h1 id="guthaben-kategorie-titel">Guthaben verwalten</h1>
+            
+            <div id="guthaben-personen-liste"></div>
+        </div>
+
+        <!-- ===== PREISVERWALTUNG (SEPARATE SEITE) ===== -->
+        <div id="preisverwaltung" class="hidden">
+            <button class="zurück-btn" onclick="zurückZuGuthabenKategorie()">← Zurück</button>
+            
+            <h1>💶 Produktverwaltung</h1>
+            <p style="text-align: center; color: #7f8c8d; font-size: 14px; margin-bottom: 25px;">
+                Preise ändern, Produkte hinzufügen oder löschen
+            </p>
+            
+            <div id="preisverwaltung-liste"></div>
+
+            <!-- NEUES PRODUKT HINZUFÜGEN -->
+            <div class="gast-eingabe" style="max-width: 600px; margin: 30px auto 0; background: #e8f5e9; border: 2px solid #4caf50;">
+                <h2>➕ Neues Produkt hinzufügen</h2>
+                
+                <input 
+                    type="text" 
+                    id="neues-produkt-name" 
+                    placeholder="Produktname (z.B. Apfelschorle)"
+                    autocomplete="off"
+                    autocorrect="off"
+                    autocapitalize="words"
+                    style="margin-bottom: 10px;"
+                >
+                
+                <input 
+                    type="number" 
+                    id="neues-produkt-preis" 
+                    placeholder="Preis in € (z.B. 1.50)"
+                    step="0.01"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    style="margin-bottom: 10px;"
+                >
+                
+                <select id="neues-produkt-kategorie" style="width: 100%; padding: 12px; font-size: 16px; border: 2px solid #bdc3c7; border-radius: 8px; margin-bottom: 10px;">
+                    <option value="">-- Kategorie wählen --</option>
+                    <option value="0">Getränke</option>
+                    <option value="1">Brötchen</option>
+                    <option value="2">Eier</option>
+                    <option value="3">Abendessen</option>
+                    <option value="4">Kuchen & Eis</option>
+                    <option value="5">Sonstiges</option>
+                </select>
+
+                <div style="margin-bottom: 15px; text-align: left;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 15px;">
+                        <input 
+                            type="checkbox" 
+                            id="neues-produkt-einkaufsliste"
+                            style="width: 20px; height: 20px; cursor: pointer;"
+                        >
+                        <span>📋 In Einkaufsliste zählen (z.B. Brötchen, Eier)</span>
+                    </label>
+                    <p style="color: #7f8c8d; font-size: 13px; margin: 5px 0 0 30px;">
+                        Wenn aktiviert, wird das Produkt in der Küchen-Einkaufsliste gezählt
+                    </p>
+                </div>
+                
+                <button class="success" onclick="produktHinzufuegen()" style="width: 100%;">
+                    ➕ Produkt hinzufügen
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== WACHABTEILUNG BEARBEITEN ===== -->
+        <div id="wachabteilung-bearbeiten" class="hidden">
+            <button class="zurück-btn" onclick="zurückZuGuthabenKategorie()">← Zurück</button>
+            
+            <h1>👥 Wachabteilung bearbeiten</h1>
+            <p style="text-align: center; color: #7f8c8d; font-size: 14px; margin-bottom: 25px;">
+                Personen zur Wachabteilung hinzufügen oder entfernen
+            </p>
+
+            <!-- Person hinzufügen -->
+            <div class="gast-eingabe" style="max-width: 600px; margin: 0 auto 30px;">
+                <h2>➕ Person hinzufügen</h2>
+                <input 
+                    type="text" 
+                    id="wachabteilung-name-input" 
+                    placeholder="Name der Person (z.B. Max Mustermann)"
+                    autocomplete="off"
+                    autocorrect="off"
+                    autocapitalize="words"
+                >
+                <button class="success" onclick="wachabteilungPersonHinzufugen()">Person hinzufügen</button>
+            </div>
+
+            <!-- Personen-Liste -->
+            <div id="wachabteilung-personen-liste"></div>
+        </div>
+
+        <!-- Meldungen -->
+        <div id="meldung" class="meldung"></div>
+    </div>
+
+
+    <script src="app.js"></script>
+</body>
+</html>
