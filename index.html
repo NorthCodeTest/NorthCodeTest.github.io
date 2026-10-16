@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Supabase Test</title>
+  <style>
+    body { font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 16px; }
+    input, button { font-size: 16px; padding: 10px; margin: 4px 0; width: 100%; box-sizing: border-box; }
+    li { padding: 6px 0; border-bottom: 1px solid #ddd; }
+    .hidden { display: none; }
+    #fehler { color: #c00; }
+  </style>
+</head>
+<body>
+  <h1>Supabase Test</h1>
+
+  <!-- Login -->
+  <div id="loginBox">
+    <input id="email" type="email" placeholder="E-Mail">
+    <input id="passwort" type="password" placeholder="Passwort">
+    <button id="loginBtn">Einloggen</button>
+    <p id="fehler"></p>
+  </div>
+
+  <!-- Notizen -->
+  <div id="appBox" class="hidden">
+    <input id="notiz" placeholder="Neue Notiz">
+    <button id="speichernBtn">Speichern</button>
+    <ul id="liste"></ul>
+    <button id="logoutBtn">Ausloggen</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // >>> HIER DEINE WERTE EINTRAGEN (Project Settings > API) <<<
+    const SUPABASE_URL = "https://unjhgjyitnwrsttuilet.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_sQyBR00qNzND25hj0PeCDA_HEzEfipZ";
+
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const $ = (id) => document.getElementById(id);
+
+    async function ladeNotizen() {
+      const { data, error } = await db
+        .from("test_notes")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) { console.error(error); return; }
+      $("liste").innerHTML = "";
+      data.forEach((n) => {
+        const li = document.createElement("li");
+        li.textContent = n.text;
+        $("liste").appendChild(li);
+      });
+    }
+
+    let kanal = null;
+    function liveSync() {
+      if (kanal) return;
+      kanal = db
+        .channel("notes-live")
+        .on("postgres_changes",
+            { event: "*", schema: "public", table: "test_notes" },
+            () => ladeNotizen())
+        .subscribe();
+    }
+
+    async function zeigeAppOderLogin() {
+      const { data } = await db.auth.getSession();
+      const eingeloggt = !!data.session;
+      $("loginBox").classList.toggle("hidden", eingeloggt);
+      $("appBox").classList.toggle("hidden", !eingeloggt);
+      if (eingeloggt) { ladeNotizen(); liveSync(); }
+    }
+
+    $("loginBtn").onclick = async () => {
+      $("fehler").textContent = "";
+      const { error } = await db.auth.signInWithPassword({
+        email: $("email").value,
+        password: $("passwort").value,
+      });
+      if (error) { $("fehler").textContent = error.message; return; }
+      zeigeAppOderLogin();
+    };
+
+    $("speichernBtn").onclick = async () => {
+      const text = $("notiz").value.trim();
+      if (!text) return;
+      const { error } = await db.from("test_notes").insert({ text });
+      if (error) { alert(error.message); return; }
+      $("notiz").value = "";
+    };
+
+    $("logoutBtn").onclick = async () => {
+      await db.auth.signOut();
+      location.reload();
+    };
+
+    zeigeAppOderLogin();
+  </script>
+</body>
+</html>
