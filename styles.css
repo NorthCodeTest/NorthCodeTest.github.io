@@ -1,0 +1,988 @@
+        /* ========================================
+           FARB-VARIABLEN (Design-System)
+           
+           Alle Farben der App sind hier zentral
+           definiert. Für ein neues Farbschema
+           reicht es, nur diese Werte zu ändern -
+           der Rest der App passt sich automatisch an.
+           ======================================== */
+        :root {
+            /* Haupt-/Markenfarben (dunkelblau-grau) */
+            --color-primary: #34495e;
+            --color-primary-dark: #2c3e50;
+
+            /* Grautöne für Rahmen, Hintergründe, Text */
+            --color-border: #bdc3c7;
+            --color-border-light: #e0e0e0;
+            --color-text-muted: #7f8c8d;
+            --color-text-secondary: #95a5a6;
+            --color-text-faint: #b0b8bd;
+            --color-bg-light: #ecf0f1;
+            --color-bg-subtle: #f8f9fa;
+            --color-hover-light: #dfe6e9;
+            --color-app-bg: #f5f5f5;
+
+            /* Hintergrund-Verlauf (Seiten-Hintergrund) */
+            --color-gradient-start: #667eea;
+            --color-gradient-end: #764ba2;
+
+            /* Erfolg (Grün) */
+            --color-success: #27ae60;
+            --color-success-dark: #229954;
+            --color-success-bg: #d4edda;
+            --color-success-border: #c3e6cb;
+            --color-success-text: #155724;
+
+            /* Gefahr / Schulden (Rot) */
+            --color-danger: #e74c3c;
+            --color-danger-dark: #c0392b;
+            --color-danger-bg-light: #fff5f5;
+            --color-danger-border-soft: #d98880;
+            --color-danger-text-dark: #943126;
+            --color-error-bg: #f8d7da;
+            --color-error-border: #f5c6cb;
+            --color-error-text: #721c24;
+
+            /* Warnung (Orange/Gelb) */
+            --color-warning: #f39c12;
+            --color-warning-dark: #d68910;
+            --color-warning-bg: #fff9e6;
+
+            /* Geld-Signalfarbe: bleibt IMMER grün, unabhängig vom Farbschema */
+            --color-money-positive: #27ae60;
+            --color-money-positive-muted: #7fae91;
+        }
+
+        /* ========================================
+           FARBSCHEMA: ANTHRAZIT & PETROL
+           
+           Wird aktiviert über [data-theme="anthrazit"]
+           auf dem <body>-Element (siehe app.js,
+           Funktion designAnwenden()).
+           
+           WICHTIG: --color-money-positive wird hier
+           bewusst NICHT überschrieben - Guthaben
+           bleibt in jedem Farbschema grün.
+           ======================================== */
+        [data-theme="anthrazit"] {
+            --color-primary: #2d3748;
+            --color-primary-dark: #1a202c;
+
+            --color-border: #cbd5e0;
+            --color-border-light: #e2e8f0;
+            --color-text-muted: #718096;
+            --color-text-secondary: #a0aec0;
+            --color-text-faint: #a0aec0;
+            --color-bg-light: #edf2f7;
+            --color-bg-subtle: #f7fafc;
+            --color-hover-light: #e2e8f0;
+            --color-app-bg: #f7fafc;
+
+            --color-gradient-start: #2d3748;
+            --color-gradient-end: #1a202c;
+
+            --color-success: #319795;
+            --color-success-dark: #2c7a7b;
+
+            --color-danger: #e53e3e;
+            --color-danger-dark: #c53030;
+        }
+
+        /* ========================================
+           FARBSCHEMA: WARMES SANDBEIGE
+           
+           Wird aktiviert über [data-theme="sandbeige"]
+           auf dem <body>-Element.
+           
+           WICHTIG: --color-money-positive wird hier
+           bewusst NICHT überschrieben - Guthaben
+           bleibt in jedem Farbschema grün.
+           ======================================== */
+        [data-theme="sandbeige"] {
+            --color-primary: #a47551;
+            --color-primary-dark: #8f6342;
+
+            --color-border: #e8dfd0;
+            --color-border-light: #f0e9dc;
+            --color-text-muted: #8a7256;
+            --color-text-secondary: #a89173;
+            --color-text-faint: #c2ac8d;
+            --color-bg-light: #f3ede1;
+            --color-bg-subtle: #fbf8f3;
+            --color-hover-light: #ede4d4;
+            --color-app-bg: #fdfbf7;
+
+            --color-gradient-start: #fdfbf7;
+            --color-gradient-end: #f3ede1;
+
+            --color-success: #6f8f5b;
+            --color-success-dark: #5b7749;
+
+            --color-danger: #c0604a;
+            --color-danger-dark: #a34e3b;
+        }
+
+        /* ========================================
+           FARBSCHEMA: FRISCHES SALBEIGRÜN
+           
+           Wird aktiviert über [data-theme="salbeigruen"]
+           auf dem <body>-Element.
+           
+           WICHTIG: --color-money-positive wird hier
+           bewusst NICHT überschrieben - Guthaben
+           bleibt in jedem Farbschema grün.
+           ======================================== */
+        [data-theme="salbeigruen"] {
+            --color-primary: #4f7d6e;
+            --color-primary-dark: #3f6a5c;
+
+            --color-border: #d7e6de;
+            --color-border-light: #e5efe9;
+            --color-text-muted: #5f8577;
+            --color-text-secondary: #7fa295;
+            --color-text-faint: #a8c4ba;
+            --color-bg-light: #e6f0ec;
+            --color-bg-subtle: #f2f8f5;
+            --color-hover-light: #dbe9e2;
+            --color-app-bg: #f6faf9;
+
+            --color-gradient-start: #f6faf9;
+            --color-gradient-end: #e6f0ec;
+
+            --color-success: #3f8f78;
+            --color-success-dark: #327361;
+
+            --color-danger: #c25b4e;
+            --color-danger-dark: #a54a3e;
+        }
+
+        /* ========================================
+           DESIGN: SCHLICHTES GRAU
+           ======================================== */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--color-gradient-start) 0%, var(--color-gradient-end) 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--color-app-bg);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            min-height: 600px;
+        }
+        /*überschrift*/
+        h1 {
+            color: var(--color-primary-dark);
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 36px;
+            font-weight: 300;
+        }
+
+        h2 {
+            color: var(--color-primary);
+            margin: 25px 0 15px 0;
+            font-size: 24px;
+            font-weight: 400;
+        }
+
+        /* Schulden-Warnung (klein oben) */
+        .schulden-warnung {
+            background: var(--color-danger-bg-light);
+            border: 2px solid var(--color-danger-border-soft);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--color-danger-text-dark);
+        }
+
+        .schulden-warnung strong {
+            color: var(--color-danger-dark);
+            font-size: 16px;
+        }
+
+        /* Header-Buttons oben RECHTS untereinander */
+        .header-buttons-container {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .header-btn {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            white-space: nowrap;
+        }
+
+        .header-btn:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Sortier-Button */
+        .sortier-info {
+            text-align: center;
+            color: var(--color-text-muted);
+            font-size: 14px;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        /* Hauptbuttons (Wachabteilung, B-Dienst, Gäste) */
+        .kategorie-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 50px 0;
+        }
+
+        .kategorie-btn {
+            background: white;
+            border: 3px solid var(--color-border);
+            padding: 60px 30px;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: 500;
+            color: var(--color-primary-dark);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .kategorie-btn:hover {
+            border-color: var(--color-primary);
+            background: var(--color-bg-light);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* ========================================
+           BENUTZER-GRID - NORMALE KARTEN (KEIN SCROLL-CONTAINER)
+           ======================================== */
+        
+        .benutzer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .benutzer-karte {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid var(--color-border);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .benutzer-karte:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .benutzer-karte.platzhalter {
+            opacity: 0.4;
+            border-style: dashed;
+        }
+
+        /* NAME GRÖßER */
+        .benutzer-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-primary-dark);
+            margin-bottom: 8px;
+        }
+
+        /* GUTHABEN KLEINER + DEZENTE FARBEN */
+        .benutzer-guthaben {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .guthaben-positiv {
+            color: var(--color-money-positive); /* Bleibt immer grün, unabhängig vom Farbschema */
+        }
+
+        .guthaben-negativ {
+            color: var(--color-danger-dark); /* Gedämpftes Rot statt knallrot */
+        }
+
+        /* Buttons */
+        button {
+            background: var(--color-text-muted);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: var(--color-text-secondary);
+            transform: translateY(-2px);
+        }
+
+        button.primary {
+            background: var(--color-primary);
+            font-weight: 500;
+        }
+
+        button.primary:hover {
+            background: var(--color-primary-dark);
+        }
+
+        button.danger {
+            background: var(--color-danger);
+        }
+
+        button.danger:hover {
+            background: var(--color-danger-dark);
+        }
+
+        button.success {
+            background: var(--color-success);
+        }
+
+        button.success:hover {
+            background: var(--color-success-dark);
+        }
+
+        /* Eingabefelder */
+        input, select {
+            padding: 12px;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            margin: 8px 0;
+            background: white;
+            transition: border 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        /* ========================================
+           PRODUKTLISTE - KATEGORISIERT
+           ======================================== */
+        
+        .produkt-kategorie {
+            margin: 25px 0;
+        }
+
+        .produkt-kategorie h3 {
+            color: var(--color-primary);
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .produkt-liste {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .produkt-karte {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid var(--color-border);
+            transition: all 0.3s;
+        }
+
+        .produkt-karte:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .produkt-name {
+            font-weight: 500;
+            color: var(--color-primary-dark);
+            margin-bottom: 8px;
+            font-size: 17px;
+        }
+
+        .produkt-preis {
+            color: var(--color-primary);
+            font-size: 19px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        /* Individueller Betrag */
+        .individueller-betrag {
+            background: var(--color-warning-bg);
+            border: 2px solid var(--color-warning);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+        }
+
+        .individueller-betrag h3 {
+            color: var(--color-warning-dark);
+            margin-bottom: 15px;
+        }
+
+        .betrag-eingabe-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .betrag-eingabe-container input {
+            flex: 1;
+            margin: 0;
+        }
+
+        .betrag-eingabe-container button {
+            margin: 0;
+            background: var(--color-warning);
+        }
+
+        .betrag-eingabe-container button:hover {
+            background: var(--color-warning-dark);
+        }
+
+        /* Guthaben-Anzeige */
+        .guthaben-box {
+            background: var(--color-primary);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .guthaben-betrag {
+            font-size: 32px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* Warenkorb */
+        .warenkorb-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--color-primary);
+        }
+
+        /* Einkaufsliste */
+        .einkaufsliste {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px solid var(--color-border);
+        }
+
+        .einkaufsitem {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            margin: 8px 0;
+            background: var(--color-bg-light);
+            border-radius: 6px;
+        }
+
+        .einkaufsitem-name {
+            font-weight: 500;
+            color: var(--color-primary-dark);
+        }
+
+        .einkaufsitem-menge {
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        /* Schulden-Box */
+        .schulden-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px solid var(--color-danger);
+            text-align: center;
+        }
+
+        .schulden-betrag {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--color-danger-dark);
+            margin: 15px 0;
+        }
+
+        /* Schulden-Warnung & Guthaben-Top auf der Wachabteilungs-Seite (Top 3) - klein & dezent, nebeneinander */
+        .schulden-warnung-box {
+            display: inline-block;
+            vertical-align: top;
+            background: white;
+            padding: 8px 14px;
+            border-radius: 8px;
+            margin: 0 12px 15px 0;
+            border: 1.5px solid var(--color-danger);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .guthaben-top-box {
+            border-color: var(--color-money-positive);
+        }
+
+        .schulden-warnung-titel {
+            font-size: 11px;
+            color: var(--color-text-muted);
+            font-weight: 600;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .schulden-warnung-zeile {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 1px 0;
+        }
+
+        .schulden-warnung-platz-1 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--color-danger-dark);
+        }
+
+        .schulden-warnung-platz-2,
+        .schulden-warnung-platz-3 {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--color-text-faint);
+        }
+
+        .guthaben-top-platz-1 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--color-money-positive);
+        }
+
+        .guthaben-top-platz-2,
+        .guthaben-top-platz-3 {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--color-money-positive-muted);
+        }
+
+        /* Versteckte Bereiche */
+        .hidden {
+            display: none;
+        }
+
+        /* Meldungen */
+        .meldung {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        /* ========================================
+           DESIGN / FARBSCHEMA AUSWAHL
+           ======================================== */
+
+        .design-optionen {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .design-option {
+            background: white;
+            border: 3px solid var(--color-border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 180px;
+            margin: 0;
+        }
+
+        .design-option:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-2px);
+        }
+
+        .design-option.aktiv {
+            border-color: var(--color-success);
+            background: var(--color-bg-light);
+        }
+
+        .design-swatches {
+            display: flex;
+            gap: 6px;
+        }
+
+        .design-swatch {
+            width: 22px;
+            height: 22px;
+            border-radius: 5px;
+        }
+
+        .design-option-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-primary-dark);
+        }
+
+        .meldung.erfolg {
+            background: var(--color-success-bg);
+            color: var(--color-success-text);
+            border: 2px solid var(--color-success-border);
+        }
+
+        .meldung.fehler {
+            background: var(--color-error-bg);
+            color: var(--color-error-text);
+            border: 2px solid var(--color-error-border);
+        }
+
+        /* Mengen-Steuerung */
+        .menge-steuerung {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .menge-btn {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            font-size: 20px;
+            font-weight: bold;
+            background: var(--color-primary);
+        }
+
+        .menge-btn:hover {
+            background: var(--color-primary-dark);
+        }
+
+        .menge-anzeige {
+            font-size: 18px;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+            color: var(--color-primary-dark);
+        }
+
+        /* Admin-Bereich */
+        .admin-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px solid var(--color-border);
+        }
+
+        .form-group {
+            margin: 15px 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--color-primary-dark);
+            font-weight: 500;
+        }
+
+        /* Gast-Eingabe */
+        .gast-eingabe {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px solid var(--color-border);
+        }
+
+        .zurück-btn {
+            background: var(--color-text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .zurück-btn:hover {
+            background: var(--color-text-muted);
+        }
+
+        /* Guthaben-Verwaltungs-Karte */
+        .guthaben-verwaltung-karte {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid var(--color-border);
+            margin-bottom: 12px;
+        }
+
+        .guthaben-verwaltung-karte h3 {
+            color: var(--color-primary-dark);
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .guthaben-eingabe {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .guthaben-eingabe input {
+            flex: 1;
+            margin: 0;
+        }
+
+        .guthaben-eingabe button {
+            margin: 0;
+        }
+
+        /* ========================================
+           PREISVERWALTUNG
+           ======================================== */
+        
+        .preis-kategorie {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 2px solid var(--color-border);
+        }
+
+        .preis-kategorie h3 {
+            color: var(--color-primary);
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--color-bg-light);
+        }
+
+        .preis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .preis-item {
+            background: var(--color-bg-subtle);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid var(--color-border-light);
+            transition: all 0.3s;
+        }
+
+        .preis-item:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .preis-item-name {
+            font-weight: 500;
+            color: var(--color-primary-dark);
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .preis-item-aktuell {
+            color: var(--color-text-muted);
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .preis-eingabe {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .preis-eingabe input {
+            flex: 1;
+            padding: 8px;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .preis-eingabe button {
+            padding: 8px 15px;
+            font-size: 14px;
+            margin: 0;
+            background: var(--color-primary);
+        }
+
+        .preis-eingabe button:hover {
+            background: var(--color-primary-dark);
+        }
+
+        /* ========================================
+           TAGESÜBERSICHT - ACCORDEON
+           ======================================== */
+
+        .tagesuebersicht-accordeon {
+            background: white;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .tagesuebersicht-header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 20px;
+            background: var(--color-bg-light);
+            border: none;
+            border-radius: 0;
+            margin: 0;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 500;
+            color: var(--color-primary-dark);
+            transition: background 0.2s;
+        }
+
+        .tagesuebersicht-header:hover {
+            background: var(--color-hover-light);
+            transform: none;
+        }
+
+        .tagesuebersicht-badge {
+            background: var(--color-primary);
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-left: auto;
+        }
+
+        .tagesuebersicht-arrow {
+            font-size: 12px;
+            color: var(--color-text-muted);
+            transition: transform 0.2s;
+        }
+
+        .tagesuebersicht-accordeon.offen .tagesuebersicht-arrow {
+            transform: rotate(180deg);
+        }
+
+        .tagesuebersicht-inhalt {
+            padding: 0 20px 20px 20px;
+        }
+
+        .tagesuebersicht-inhalt.hidden {
+            display: none;
+        }
+
+        /* Einzelne Bestellung in der Übersicht */
+        .tages-bestellung {
+            border-top: 1px solid var(--color-bg-light);
+            padding: 12px 0;
+        }
+
+        .tages-bestellung:first-child {
+            border-top: none;
+        }
+
+        .tages-bestellung-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .tages-bestellung-name {
+            font-weight: 600;
+            color: var(--color-primary-dark);
+            font-size: 15px;
+        }
+
+        .tages-bestellung-summe {
+            font-weight: 700;
+            color: var(--color-danger-dark);
+            font-size: 15px;
+        }
+
+        .tages-bestellung-meta {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .tages-bestellung-produkte {
+            font-size: 14px;
+            color: var(--color-text-muted);
+            line-height: 1.5;
+        }
+
+        .tagesuebersicht-leer {
+            text-align: center;
+            color: var(--color-text-secondary);
+            padding: 15px 0;
+            font-size: 14px;
+        }
+
+        .tagesuebersicht-gesamt {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 2px solid var(--color-bg-light);
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--color-primary-dark);
+        }

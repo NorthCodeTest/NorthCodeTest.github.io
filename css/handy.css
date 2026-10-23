@@ -1,0 +1,24 @@
+/* Handy-Ansicht: ergänzt styles.css (Farben/Themes kommen von dort). */
+.handy { max-width: 520px; margin: 0 auto; padding: 16px; }
+.handy h1 { font-size: 28px; }
+.handy .hidden { display: none !important; }
+.h-kopf { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 14px; }
+.h-abmelden { padding: 8px 12px; font-size: 14px; }
+.handy .admin-section input { width: 100%; margin-bottom: 10px; }
+.handy .admin-section button { width: 100%; }
+.handy #h-produkte .produkt-liste { grid-template-columns: 1fr; gap: 10px; }
+.handy .produkt-karte { box-sizing: border-box; width: 100%; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; padding: 12px; }
+.handy .produkt-name { flex: 1; font-size: 16px; }
+.handy .menge-btn { width: 44px; height: 44px; font-size: 22px; }
+.handy .menge-steuerung { display: flex; align-items: center; gap: 8px; }
+.handy .menge-anzeige { min-width: 20px; text-align: center; font-weight: bold; }
+.h-wk-zeile { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--color-border-light); }
+.h-leer { color: var(--color-text-muted); font-size: 14px; padding: 8px 0; }
+.h-summe { text-align: right; margin-top: 14px; font-size: 22px; font-weight: bold; }
+.h-bestellen-btn { width: 100%; padding: 18px; font-size: 18px; margin-top: 14px; }
+.h-bestellen-btn[disabled] { opacity: .6; }
+#h-hist { margin-top: 26px; }
+
+.handy .produkt-liste { min-width: 0; }
+.handy .produkt-name { min-width: 0; overflow-wrap: anywhere; }
+.handy .produkt-preis { white-space: nowrap; }

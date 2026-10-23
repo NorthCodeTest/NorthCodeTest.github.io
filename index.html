@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kantine</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/handy.css">
+</head>
+<body>
+<!--
+    KANTINE-APP (eine Seite für alles)
+    Nach der Anmeldung entscheidet die Rolle des Kontos, was erscheint:
+      mitglied      -> Handy-Ansicht   (#handy,  js/handy.js)
+      kueche/admin  -> Tablet-Ansicht  (#tablet, js/tablet.js, js/kueche.js, js/verwaltung.js)
+    Die Anmeldung und die Rollenwahl steckt in js/start.js.
+-->
+<div class="container">
+
+    <!-- Anmeldung (für Handy-Konten und das Küchen-Tablet) -->
+    <div id="login" class="hidden">
+        <h1>🍽️ Kantine</h1>
+        <div class="admin-section">
+            <h2>Anmelden</h2>
+            <input type="text" id="l-name" placeholder="Benutzername" autocomplete="username"
+                   autocapitalize="none" autocorrect="off" spellcheck="false">
+            <input type="password" id="l-pw" placeholder="Passwort" autocomplete="current-password">
+            <button class="primary" id="l-btn">Anmelden</button>
+        </div>
+    </div>
+
+    <div id="start-hinweis" class="hidden admin-section"></div>
+
+    <!-- HANDY -->
+    <div id="handy" class="hidden handy">
+    <!-- Bestellen -->
+    <div id="h-bestellen" class="hidden">
+        <div class="h-kopf">
+            <span>Angemeldet als: <strong id="h-anzeigename"></strong></span>
+            <button class="h-abmelden" id="h-abmelden">Abmelden</button>
+        </div>
+
+        <div class="guthaben-box">
+            <div>Dein Guthaben</div>
+            <div class="guthaben-betrag" id="h-guthaben">–</div>
+        </div>
+
+        <div id="h-schulden" class="hidden"></div>
+        <div id="h-guthaben-top" class="hidden"></div>
+
+        <h2>Produkte auswählen</h2>
+        <div id="h-produkte"></div>
+
+        <h2>Warenkorb</h2>
+        <div id="h-warenkorb"></div>
+        <div class="h-summe">Summe: <span id="h-summe">0.00</span> €</div>
+        <button class="primary h-bestellen-btn" id="h-bestellen-btn">Jetzt bestellen</button>
+
+        <div class="tagesuebersicht-accordeon" id="h-hist">
+            <button class="tagesuebersicht-header" id="h-hist-kopf">
+                <span>📋 Bestellhistorie (letzte 30 Tage)</span>
+                <span class="tagesuebersicht-badge" id="h-hist-badge">0 Einträge</span>
+                <span class="tagesuebersicht-arrow" id="h-hist-pfeil">▼</span>
+            </button>
+            <div class="tagesuebersicht-inhalt hidden" id="h-hist-inhalt"></div>
+        </div>
+    </div>
+
+    <!-- Hinweis, wenn config.js noch nicht ausgefüllt ist / Konto ohne Handy-Rolle -->
+    <div id="h-hinweis" class="hidden admin-section"></div>
+
+    </div>
+
+    <!-- TABLET -->
+    <div id="tablet" class="hidden">
+    <div id="t-hinweis" class="hidden admin-section"></div>
+
+    <!-- Alles Folgende ist nur sichtbar, wenn das Tablet angemeldet ist -->
+    <div id="t-app" class="hidden">
+        <div class="header-buttons-container">
+            <button class="header-btn" id="t-btn-kueche">👨‍🍳 Küche</button>
+            <button class="header-btn" id="t-btn-verwaltung">⚙️ Verwaltung</button>
+        </div>
+
+        <!-- Startseite -->
+        <div id="startseite">
+            <h1>🍽️ Kantine</h1>
+            <div class="kategorie-grid">
+                <button class="kategorie-btn" data-kat="wachabteilung">Wachabteilung</button>
+                <button class="kategorie-btn" data-kat="bdienst">B-Dienst</button>
+                <button class="kategorie-btn" data-kat="fahrer_bdienst">Fahrer B-Dienst</button>
+                <button class="kategorie-btn" data-kat="azubi">Auszubildende</button>
+                <button class="kategorie-btn" data-kat="gaeste">Gäste</button>
+                <button class="kategorie-btn" data-kat="notarzt">Notarzt</button>
+            </div>
+        </div>
+
+        <!-- Personenauswahl -->
+        <div id="benutzer-auswahl" class="hidden">
+            <button class="zurück-btn" id="t-zurueck-start">← Zurück</button>
+            <div id="schulden-warnung-box" class="hidden"></div>
+            <div id="guthaben-top-box" class="hidden"></div>
+            <h1 id="kategorie-titel">Benutzer auswählen</h1>
+            <div class="benutzer-grid" id="benutzer-liste"></div>
+            <div id="platzhalter-eingabe-bereich" class="hidden">
+                <div class="gast-eingabe">
+                    <h2>Name eingeben</h2>
+                    <input type="text" id="platzhalter-name-input" placeholder="Name eingeben"
+                           autocomplete="off" autocorrect="off" autocapitalize="words">
+                    <button class="success" id="t-name-speichern">Name speichern &amp; weiter</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bestellen -->
+        <div id="bestell-bereich" class="hidden">
+            <button class="zurück-btn" id="t-zurueck-liste">← Zurück</button>
+            <div class="guthaben-box">
+                <div>Angemeldet als: <strong id="aktueller-benutzer"></strong></div>
+                <div class="guthaben-betrag" id="guthaben-anzeige">0.00 €</div>
+            </div>
+
+            <h2>Produkte auswählen</h2>
+            <div id="produkte-container"></div>
+
+            <div class="individueller-betrag">
+                <h3>💶 Individueller Betrag</h3>
+                <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 10px;">Für Sonderartikel oder manuelle Beträge</p>
+                <div class="betrag-eingabe-container">
+                    <input type="number" id="individueller-betrag-input" placeholder="Betrag in € (z.B. 2.50)"
+                           step="0.01" inputmode="decimal" autocomplete="off">
+                    <input type="text" id="individueller-bezeichnung-input" placeholder="Bezeichnung (optional)"
+                           autocomplete="off" autocorrect="off" autocapitalize="words">
+                    <button id="t-indiv-btn">Hinzufügen</button>
+                </div>
+            </div>
+
+            <h2>Warenkorb</h2>
+            <div id="warenkorb"></div>
+            <div style="text-align: right; margin-top: 20px;">
+                <strong style="font-size: 24px; color: #2c3e50;">Summe: <span id="summe-anzeige">0.00</span> €</strong>
+            </div>
+            <button class="primary" id="t-bestellen-btn" style="width: 100%; padding: 20px; font-size: 20px; margin-top: 20px;">
+                Jetzt bestellen
+            </button>
+
+            <div class="tagesuebersicht-accordeon" id="benutzer-historie-accordeon" style="margin-top: 30px;">
+                <button class="tagesuebersicht-header" id="t-hist-kopf">
+                    <span>📋 Bestellhistorie (letzte 30 Tage)</span>
+                    <span class="tagesuebersicht-badge" id="benutzer-historie-badge">0 Einträge</span>
+                    <span class="tagesuebersicht-arrow" id="benutzer-historie-arrow">▼</span>
+                </button>
+                <div class="tagesuebersicht-inhalt hidden" id="benutzer-historie-inhalt">
+                    <div id="benutzer-historie-liste"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    <div id="meldung" class="meldung"></div>
+</div>
+
+<script src="js/vendor/supabase.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/handy.js"></script>
+<script src="js/tablet.js"></script>
+<script src="js/kueche.js"></script>
+<script src="js/verwaltung.js"></script>
+<script src="js/start.js"></script>
+</body>
+</html>
